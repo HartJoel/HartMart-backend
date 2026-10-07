@@ -22,22 +22,26 @@ export const generateRefreshToken = (userId) => {
 
 export const setAuthCookies = (res, accessToken, refreshToken) => {
   const isProduction = process.env.NODE_ENV === "production";
+  // Frontend and backend live on different sites (e.g. localhost:5173 vs onrender.com),
+  // so the cookie must be SameSite=None to be sent cross-site. That requires Secure,
+  // which only works over HTTPS - hence it's gated on production.
+  const sameSite = isProduction ? "none" : "lax";
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "strict",
+    sameSite,
     maxAge: 60 * 60 * 1000, // 1 hour
     path: "/",
   });
 
-  
+
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "strict",
+    sameSite,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: "/", 
+    path: "/",
   });
 };
 

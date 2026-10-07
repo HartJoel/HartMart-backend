@@ -57,10 +57,12 @@ export const refreshToken = async (req, res) => {
 
     const newAccessToken = generateAccessToken(user.id, user.role);
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 60 * 60 * 1000, // 1 hour
       path: "/",
     });
