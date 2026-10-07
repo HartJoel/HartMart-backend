@@ -1,7 +1,7 @@
 // controllers/refreshController.js
 import jwt from "jsonwebtoken";
 import { prisma } from "../../config/db.js";
-import { generateAccessToken } from "../../shared/utils/generate.token.js";
+import { generateAccessToken, getAuthCookieOptions } from "../../shared/utils/generate.token.js";
 import logger from "../../shared/utils/logger.js";
 import { sendErrorResponse } from "../../shared/utils/error-response.js";
 
@@ -57,14 +57,9 @@ export const refreshToken = async (req, res) => {
 
     const newAccessToken = generateAccessToken(user.id, user.role);
 
-    const isProduction = process.env.NODE_ENV === "production";
-
     res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      ...getAuthCookieOptions(),
       maxAge: 60 * 60 * 1000, // 1 hour
-      path: "/",
     });
 
     return res.status(200).json({

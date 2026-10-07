@@ -20,32 +20,38 @@ export const generateRefreshToken = (userId) => {
   });
 };
 
-export const setAuthCookies = (res, accessToken, refreshToken) => {
+// Frontend and backend live on different sites (e.g. localhost:5173 vs onrender.com),
+// so the cookie must be SameSite=None to be sent cross-site. That requires Secure,
+// which only works over HTTPS - hence it's gated on production. Shared by every place
+// that sets or clears these cookies so they can never drift out of sync with each other.
+export const getAuthCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
-  // Frontend and backend live on different sites (e.g. localhost:5173 vs onrender.com),
-  // so the cookie must be SameSite=None to be sent cross-site. That requires Secure,
-  // which only works over HTTPS - hence it's gated on production.
-  const sameSite = isProduction ? "none" : "lax";
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+};
+
+export const setAuthCookies = (res, accessToken, refreshToken) => {
+  const cookieOptions = getAuthCookieOptions();
 
   res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite,
+    ...cookieOptions,
     maxAge: 60 * 60 * 1000, // 1 hour
-    path: "/",
   });
 
-
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite,
+    ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: "/",
   });
 };
 
 export const clearAuthCookies = (res) => {
-  res.clearCookie("accessToken", { path: "/" });
-  res.clearCookie("refreshToken", { path: "/" });
+  const cookieOptions = getAuthCookieOptions();
+
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
 };
