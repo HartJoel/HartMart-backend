@@ -1,6 +1,7 @@
+import jwt from "jsonwebtoken";
 import AuthService from "./auth.service.js";
 import asyncHandler from "../../shared/utils/asyncHandler.js";
-import { setAuthCookies } from "../../shared/utils/generate.token.js";
+import { setAuthCookies, clearAuthCookies } from "../../shared/utils/generate.token.js";
 import { sendErrorResponse } from "../../shared/utils/error-response.js";
 
 const register = asyncHandler(async (req, res) => {
@@ -81,6 +82,34 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+const logout = asyncHandler(async (req, res) => {
+  const refreshTokenCookie = req.cookies.refreshToken;
+
+  let userId = req.user?.id;
+  if (!userId && refreshTokenCookie) {
+    try {
+      userId = jwt.verify(refreshTokenCookie, process.env.JWT_REFRESH_SECRET).id;
+    } catch {
+      // Token invalid/expired - still proceed to clear cookies below.
+    }
+  }
+
+  const requestMeta = {
+    userId,
+    ip: req.ip,
+    userAgent: req.get("User-Agent"),
+  };
+
+  const result = await AuthService.logout(refreshTokenCookie, requestMeta);
+
+  clearAuthCookies(res);
+
+  return res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+});
+
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -117,4 +146,4 @@ const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
-export { register, verifyEmail, login, forgotPassword, resetPassword };
+export { register, verifyEmail, login, logout, forgotPassword, resetPassword };

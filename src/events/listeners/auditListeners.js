@@ -54,6 +54,16 @@ export default function registerAuditListeners() {
       description: "User logged in",
     }),
   );
+  EventService.on(EventTypes.USER_LOGGED_OUT, (data) =>
+    record({
+      ...data,
+      userId: data.user,
+      action: "LOGOUT",
+      resource: "user",
+      resourceId: data.user,
+      description: "User logged out",
+    }),
+  );
   EventService.on(EventTypes.VENDOR_APPLIED, (data) =>
     record({
       ...data,

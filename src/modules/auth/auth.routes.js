@@ -3,6 +3,7 @@ import {
   register,
   verifyEmail,
   login,
+  logout,
   forgotPassword,
   resetPassword,
 } from "./auth.controller.js";
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post("/register", validateRequest(registerSchema), register);
 router.post("/verify-email", validateRequest(tokenQuerySchema, "query"), verifyEmail);
 router.post("/login", validateRequest(loginSchema) ,login);
+router.post("/logout", logout);
 router.post("/forgot-password", validateRequest(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validateRequest(resetPasswordSchema), validateRequest(tokenQuerySchema, "query"), resetPassword);
 

@@ -207,6 +207,30 @@ class AuthService {
     }
   }
 
+  // LOGOUT USER
+  static async logout(refreshTokenCookie, requestMeta = {}) {
+    if (refreshTokenCookie) {
+      await AuthRepository.deleteRefreshToken(refreshTokenCookie);
+    }
+
+    logger.info("User logged out", {
+      userId: requestMeta.userId,
+      ip: requestMeta.ip,
+      userAgent: requestMeta.userAgent,
+      timestamp: new Date(),
+    });
+
+    if (requestMeta.userId) {
+      EventService.emit(EventTypes.USER_LOGGED_OUT, {
+        user: requestMeta.userId,
+        ipAddress: requestMeta.ip,
+        userAgent: requestMeta.userAgent,
+      });
+    }
+
+    return { message: "Logged out successfully" };
+  }
+
   // FORGOT PASSWORD
   static async forgotPassword(email, requestMeta = {}) {
     logger.info("Password reset requested", {

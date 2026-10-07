@@ -2,6 +2,7 @@ const EventTypes = {
   USER_REGISTERED: "user.registered",
   USER_EMAIL_VERIFIED: "user.email.verified",
   USER_LOGGED_IN: "user.logged.in",
+  USER_LOGGED_OUT: "user.logged.out",
   VENDOR_APPLIED: "vendor.applied",
   VENDOR_UPDATED: "vendor.updated",
   VENDOR_REJECTED: "vendor.rejected",

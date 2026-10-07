@@ -80,6 +80,12 @@ class AuthRepository {
       },
     });
   }
+
+  static async deleteRefreshToken(token) {
+    return prisma.refreshToken.deleteMany({
+      where: { token },
+    });
+  }
 }
 
 export default AuthRepository;
