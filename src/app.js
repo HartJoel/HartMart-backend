@@ -1,7 +1,9 @@
 import express from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import { connectDB, disconnectDB } from "./config/db.js";
+import { corsOptions } from "./config/cors.js";
 import registerNotificationListeners from "./events/listeners/notificationListeners.js";
 import registerAuditListeners from "./events/listeners/auditListeners.js";
 
@@ -32,6 +34,8 @@ config();
 connectDB();
 
 const app = express();
+
+app.use(cors(corsOptions));
 
 // Body parsing middlwares
 app.use(express.json());
