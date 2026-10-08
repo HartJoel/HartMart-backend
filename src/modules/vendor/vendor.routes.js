@@ -24,7 +24,7 @@ router.post("/apply", authMiddleware, validateRequest(vendorApplicationSchema), 
 // Public
 router.get("/", getAllVendors);
 router.get("/top", getTopVendors);
-router.get("/me", getMyVendorProfile);
+router.get("/me", authMiddleware, getMyVendorProfile);
 
 // Vendor
 router.patch("/me", authMiddleware, validateRequest(updateVendorProfileSchema), updateVendorProfile);
