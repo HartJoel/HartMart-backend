@@ -5,13 +5,14 @@ class VendorRepository {
     return prisma.vendor.findUnique({
       where: {
         userId,
+        deletedAt: null,
       },
     });
   }
 
   static async findById(vendorId) {
     return prisma.vendor.findUnique({
-      where: { id: vendorId },
+      where: { id: vendorId, deletedAt: null },
     });
   }
 
@@ -19,6 +20,7 @@ class VendorRepository {
     return prisma.vendor.findUnique({
       where: {
         storeSlug,
+        deletedAt: null,
       },
     });
   }
@@ -33,6 +35,7 @@ class VendorRepository {
     return prisma.vendor.update({
       where: {
         id: vendorId,
+        deletedAt: null,
       },
       data,
     });
@@ -50,6 +53,7 @@ class VendorRepository {
     return prisma.vendor.update({
       where: {
         id: vendorId,
+        deletedAt: null,
       },
       data: {
         status: "VERIFIED",
@@ -62,6 +66,7 @@ class VendorRepository {
     return prisma.vendor.update({
       where: {
         id: vendorId,
+        deletedAt: null,
       },
       data: {
         status: "REJECTED",
@@ -74,6 +79,7 @@ class VendorRepository {
     return prisma.vendor.update({
       where: {
         id: vendorId,
+        deletedAt: null,
       },
       data: {
         status: "SUSPENDED",
@@ -85,6 +91,7 @@ class VendorRepository {
     return prisma.vendor.findUnique({
       where: {
         id: vendorId,
+        deletedAt: null,
       },
       select: {
         averageRating: true,
@@ -98,15 +105,7 @@ class VendorRepository {
 
   static getTopVendors() {
     return prisma.vendor.findMany({
-      orderBy: {
-        averageRating: "desc",
-      },
-      take: 10,
-    });
-  }
-
-  static getTopVendors() {
-    return prisma.vendor.findMany({
+      where: { deletedAt: null },
       orderBy: {
         averageRating: "desc",
       },

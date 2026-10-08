@@ -3,7 +3,7 @@ import { prisma } from "../../config/db.js";
 class AuthRepository {
   static async findUserByEmail(email) {
     return prisma.user.findUnique({
-      where: { email },
+      where: { email, deletedAt: null },
     });
   }
 
@@ -17,6 +17,7 @@ class AuthRepository {
     return prisma.user.findFirst({
       where: {
         emailVerificationToken: token,
+        deletedAt: null,
         emailVerificationTokenExpires: {
           gt: new Date(), // Token not expired
         },
@@ -53,6 +54,7 @@ class AuthRepository {
     return prisma.user.findFirst({
       where: {
         passwordResetToken: token,
+        deletedAt: null,
         passwordResetExpires: {
           gt: new Date(), // Token not expired
         },

@@ -4,7 +4,7 @@ import QueryBuilder from "../../shared/utils/queryBuilder.js";
 class UserRepository {
   static async findById(id) {
     return prisma.user.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
   }
 
@@ -28,7 +28,7 @@ class UserRepository {
   }
 
   static async findAll(query) {
-    return new QueryBuilder(prisma.user, query)
+    return new QueryBuilder(prisma.user, query, { supportsSoftDelete: true })
       .search(["name"])
       .filter()
       .sort()

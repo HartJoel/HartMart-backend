@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
 import logger from "../utils/logger.js";
 import { sendErrorResponse } from "../utils/error-response.js";
+import { prisma } from "../../config/db.js";
 
-export const authMiddleware = (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies.accessToken;
 
@@ -15,6 +16,15 @@ export const authMiddleware = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await prisma.user.findFirst({
+      where: { id: decoded.id, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return sendErrorResponse(res, 401, "The account is no longer available. Please sign in again.");
+    }
 
     req.user = decoded;
 

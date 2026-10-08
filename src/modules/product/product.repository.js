@@ -4,7 +4,7 @@ import QueryBuilder from "../../shared/utils/queryBuilder.js";
 class ProductRepository {
   static async findBySku(sku) {
     return prisma.product.findUnique({
-      where: { sku },
+      where: { sku, deletedAt: null },
     });
   }
 
@@ -29,8 +29,12 @@ class ProductRepository {
     });
   }
 
+  static async findByIdIncludingDeleted(id) {
+    return prisma.product.findUnique({ where: { id } });
+  }
+
   static async getProducts(query) {
-    return new QueryBuilder(prisma.product, query)
+    return new QueryBuilder(prisma.product, query, { supportsSoftDelete: true })
       .search(["name", "description"])
       .filter()
       .sort()
@@ -67,8 +71,7 @@ class ProductRepository {
   }
 
   static async findVendorProducts(vendorId, query) {
-    query.vendorId = vendorId;
-    return new QueryBuilder(prisma.product, query)
+    return new QueryBuilder(prisma.product, { ...query, vendorId }, { supportsSoftDelete: true })
       .search(["name", "description"])
       .filter()
       .sort()
@@ -88,10 +91,7 @@ class ProductRepository {
   }
 
   static async getLowStockProducts(vendorId, query) {
-    query.vendorId = vendorId;
-    query.deletedAt = null;
-
-    const result = await new QueryBuilder(prisma.product, query)
+    const result = await new QueryBuilder(prisma.product, { ...query, vendorId }, { supportsSoftDelete: true })
       .filter()
       .sort()
       .paginate()
@@ -105,11 +105,9 @@ class ProductRepository {
   }
 
   static async softDeleteProduct(productId) {
-    return prisma.product.update({
-      where: { id: productId },
-      data: {
-        deletedAt: new Date(),
-      },
+    return prisma.product.updateMany({
+      where: { id: productId, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   }
 

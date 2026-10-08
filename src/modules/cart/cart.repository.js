@@ -27,7 +27,7 @@ class CartRespository {
 
   static async getUserCart(userId) {
     return prisma.cartItem.findMany({
-      where: { userId },
+      where: { userId, product: { is: { deletedAt: null } } },
       include: {
         product: true,
       },

@@ -44,7 +44,7 @@ export const refreshToken = async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: decoded.id, deletedAt: null },
     });
 
     if (!user) {

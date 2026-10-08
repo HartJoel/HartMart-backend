@@ -90,6 +90,9 @@ class CategoryService {
 
   static async delete(id) {
     const result = await CategoryRepository.deleteById(id);
+    if (result.count === 0) {
+      throw new AppError("Category not found.", 404);
+    }
     await invalidateCache("categories");
     logger.info("Category deleted", { categoryId: id });
     return result;

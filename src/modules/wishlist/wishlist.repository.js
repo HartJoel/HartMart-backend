@@ -18,7 +18,7 @@ class WishlistRepository {
 
   static async getUserWishlist(userId) {
     return prisma.wishlistItem.findMany({
-      where: { userId },
+      where: { userId, product: { is: { deletedAt: null } } },
       include: {
         product: true,
       },

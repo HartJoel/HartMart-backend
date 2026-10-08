@@ -207,7 +207,7 @@ class ProductService {
       throw new AppError("A vendor account is required to delete products.", 403);
     }
 
-    const product = await ProductRepository.findbyId(productId);
+    const product = await ProductRepository.findByIdIncludingDeleted(productId);
 
     if (!product) {
       throw new AppError("Product not found.", 404);
@@ -222,12 +222,15 @@ class ProductService {
     }
 
     const deleted = await ProductRepository.softDeleteProduct(productId);
+    if (deleted.count === 0) {
+      throw new AppError("Product has already been deleted.", 409);
+    }
     await invalidateCache("products.detail");
     await invalidateCache("products.list");
     await invalidateCache("categories");
     EventService.emit(EventTypes.PRODUCT_DELETED, { userId, vendorId: vendor.id, product });
     logger.info("Product deleted", { productId, vendorId: vendor.id, userId });
-    return deleted;
+    return { id: productId, deletedAt: new Date() };
   }
 }
 

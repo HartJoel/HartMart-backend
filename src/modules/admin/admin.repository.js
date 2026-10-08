@@ -87,7 +87,7 @@ class AdminRepository {
   }
 
   static async findUsers(query) {
-    return new QueryBuilder(prisma.user, query)
+    return new QueryBuilder(prisma.user, query, { supportsSoftDelete: true })
       .search(["name", "email"])
       .filter()
       .sort()
@@ -149,7 +149,7 @@ class AdminRepository {
   }
 
   static async getUsersForExport({ startDate, endDate }) {
-    const where = {};
+    const where = { deletedAt: null };
 
     if (startDate || endDate) {
       where.createdAt = {};
@@ -183,7 +183,7 @@ class AdminRepository {
   }
 
   static async getVendorsForExport({ startDate, endDate }) {
-    const where = {};
+    const where = { deletedAt: null };
 
     if (startDate || endDate) {
       where.createdAt = {};
@@ -219,7 +219,7 @@ class AdminRepository {
   }
 
   static async getProductsForExport({ startDate, endDate }) {
-    const where = {};
+    const where = { deletedAt: null };
 
     if (startDate || endDate) {
       where.createdAt = {};

@@ -9,34 +9,35 @@ class CategoryRepository {
 
   static async findBySlug(slug) {
     return prisma.category.findUnique({
-      where: { slug },
+      where: { slug, deletedAt: null },
     });
   }
 
   static async findById(id) {
     return prisma.category.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
-        subCategories: true,
-        products: true,
+        subCategories: { where: { deletedAt: null } },
+        products: { where: { deletedAt: null } },
       },
     });
   }
 
   static async listCategories() {
-    return prisma.category.findMany({});
+    return prisma.category.findMany({ where: { deletedAt: null } });
   }
 
   static async update(id, data) {
     return prisma.category.update({
-      where: { id },
+      where: { id, deletedAt: null },
       data,
     });
   }
 
   static async deleteById(id) {
-    return prisma.category.delete({
-      where: { id },
+    return prisma.category.updateMany({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
   }
 }

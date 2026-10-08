@@ -71,6 +71,10 @@ export default class QueryBuilder {
       ...filteredQuery,
     };
 
+    if (this.supportsSoftDelete && !this.includeDeleted) {
+      this.where.deletedAt = null;
+    }
+
     return this;
   }
 
