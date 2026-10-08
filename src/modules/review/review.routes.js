@@ -14,13 +14,11 @@ import { validateIdParam } from "../../shared/middleware/validate.id-param.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
-router.post("/", validateRequest(createReviewSchema), createReview);
+router.post("/", authMiddleware, validateRequest(createReviewSchema), createReview);
 router.get("/:productId", validateIdParam("productId"), getReviews);
-router.patch("/:reviewId", validateIdParam("reviewId"), validateRequest(updateReviewSchema), updateReview);
-router.post("/:reviewId/response", validateIdParam("reviewId"), validateRequest(reviewResponseSchema), respondToReview);
-router.delete("/:reviewId", validateIdParam("reviewId"), deleteReview);
-router.post("/:reviewId/helpful", validateIdParam("reviewId"), toggleHelpful);
+router.patch("/:reviewId", authMiddleware, validateIdParam("reviewId"), validateRequest(updateReviewSchema), updateReview);
+router.post("/:reviewId/response", authMiddleware, validateIdParam("reviewId"), validateRequest(reviewResponseSchema), respondToReview);
+router.delete("/:reviewId", authMiddleware, validateIdParam("reviewId"), deleteReview);
+router.post("/:reviewId/helpful", authMiddleware, validateIdParam("reviewId"), toggleHelpful);
 
 export default router;
