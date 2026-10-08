@@ -19,20 +19,19 @@ import { productListQuerySchema } from "../../shared/validators/list-query.valid
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
-router.post("/", upload.single("image"), validateRequest(createProductSchema), requireRole("VENDOR"), createProduct);
+router.post("/", authMiddleware, upload.single("image"), validateRequest(createProductSchema), requireRole("VENDOR"), createProduct);
 router.get("/", validateRequest(productListQuerySchema, "query"), getAllProducts);
 router.get(
   "/vendor/me",
+  authMiddleware,
   validateRequest(productListQuerySchema, "query"),
   requireRoles(["ADMIN", "VENDOR"]),
   getVendorProducts,
 );
-router.get("/vendor/me/low-stock", validateRequest(productListQuerySchema, "query"), requireRole("VENDOR"), getLowStock);
+router.get("/vendor/me/low-stock", authMiddleware, validateRequest(productListQuerySchema, "query"), requireRole("VENDOR"), getLowStock);
 router.get("/:productId", validateIdParam("productId"), getProductById);
-router.patch("/:id", validateIdParam("id"), validateRequest(updateProductSchema), requireRole("VENDOR"), updateProduct);
-router.patch("/:productId/stock", validateIdParam("productId"), validateRequest(updateProductStockSchema), requireRole("VENDOR"), updateStock);
-router.delete("/:productId", validateIdParam("productId"), requireRole("VENDOR"), deleteProduct);
+router.patch("/:id", authMiddleware, validateIdParam("id"), validateRequest(updateProductSchema), requireRole("VENDOR"), updateProduct);
+router.patch("/:productId/stock", authMiddleware, validateIdParam("productId"), validateRequest(updateProductStockSchema), requireRole("VENDOR"), updateStock);
+router.delete("/:productId", authMiddleware, validateIdParam("productId"), requireRole("VENDOR"), deleteProduct);
 
 export default router;

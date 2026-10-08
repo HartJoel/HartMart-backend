@@ -19,24 +19,22 @@ import { validateIdParam } from "../../shared/middleware/validate.id-param.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
-
-router.post("/apply", validateRequest(vendorApplicationSchema), applyAsVendor);
+router.post("/apply", authMiddleware, validateRequest(vendorApplicationSchema), applyAsVendor);
 
 // Public
 router.get("/", getAllVendors);
 router.get("/top", getTopVendors);
+router.get("/me", getMyVendorProfile);
 
 // Vendor
-router.get("/me", getMyVendorProfile);
-router.patch("/me", validateRequest(updateVendorProfileSchema), updateVendorProfile);
-router.get("/me/analytics", getVendorAnalytics);
+router.patch("/me", authMiddleware, validateRequest(updateVendorProfileSchema), updateVendorProfile);
+router.get("/me/analytics", authMiddleware, getVendorAnalytics);
 
 // Admin
-router.post("/:vendorId/verify", validateIdParam("vendorId"), verifyVendor);
-router.post("/:vendorId/reject", validateIdParam("vendorId"), validateRequest(rejectVendorSchema), rejectVendor);
-router.post("/:vendorId/suspend", validateIdParam("vendorId"), suspendVendor);
-router.get("/:vendorId/metrics", validateIdParam("vendorId"), getVendorMetrics);
+router.post("/:vendorId/verify", authMiddleware, validateIdParam("vendorId"), verifyVendor);
+router.post("/:vendorId/reject", authMiddleware, validateIdParam("vendorId"), validateRequest(rejectVendorSchema), rejectVendor);
+router.post("/:vendorId/suspend", authMiddleware, validateIdParam("vendorId"), suspendVendor);
+router.get("/:vendorId/metrics", authMiddleware, validateIdParam("vendorId"), getVendorMetrics);
 
 router.get("/:vendorId", validateIdParam("vendorId"), getVendorProfile);
 
