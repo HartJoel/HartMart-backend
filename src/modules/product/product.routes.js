@@ -33,9 +33,16 @@ router.get("/:productId", validateIdParam("productId"), getProductById);
 router.patch(
   "/:id",
   authMiddleware,
-  upload.array("image", 10),
+  upload.fields([
+    { name: "image", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+  ]),
   (req, res, next) => {
-    if (req.files?.length && !req.body.images) req.body.images = [];
+    req.uploadedImages = [
+      ...(req.files?.image ?? []),
+      ...(req.files?.images ?? []),
+    ];
+    if (req.uploadedImages.length && !req.body.images) req.body.images = [];
     next();
   },
   validateIdParam("id"),
