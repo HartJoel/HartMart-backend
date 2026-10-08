@@ -7,9 +7,10 @@ import {
   getOrSetCache,
   invalidateCache,
 } from "../../shared/utils/cache.js";
+import { uploadCategoryToCloudinary } from "../../shared/utils/uploadToCloudinary.js";
 
 class CategoryService {
-  static async createCategory(data) {
+  static async createCategory(data, iconFile) {
     const slug = slugify(data.name, {
       lower: true,
       strict: true,
@@ -24,11 +25,15 @@ class CategoryService {
       }
     }
 
+    const uploadedIcon = iconFile
+      ? await uploadCategoryToCloudinary(iconFile.buffer)
+      : null;
+
     const category = await CategoryRepository.create({
       name: data.name,
       slug,
       description: data.description,
-      icon: data.icon,
+      icon: uploadedIcon?.secure_url ?? data.icon,
       parentId: data.parentId || null,
     });
     await invalidateCache("categories");
@@ -69,7 +74,7 @@ class CategoryService {
     return categories;
   }
 
-  static async update(id, data) {
+  static async update(id, data, iconFile) {
     let slug;
 
     if (data.name) {
@@ -79,8 +84,13 @@ class CategoryService {
       });
     }
 
+    const uploadedIcon = iconFile
+      ? await uploadCategoryToCloudinary(iconFile.buffer)
+      : null;
+
     const category = await CategoryRepository.update(id, {
       ...data,
+      ...(uploadedIcon && { icon: uploadedIcon.secure_url }),
       ...(slug && { slug }),
     });
     await invalidateCache("categories");

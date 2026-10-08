@@ -2,7 +2,7 @@ import CategoryService from "./category.service.js";
 import asyncHandler from "../../shared/utils/asyncHandler.js";
 
 const createCategory = asyncHandler(async (req, res) => {
-  const category = await CategoryService.createCategory(req.body);
+  const category = await CategoryService.createCategory(req.body, req.file);
 
   res.status(201).json({
     success: true,
@@ -32,7 +32,7 @@ const getCategory = asyncHandler(async (req, res) => {
 });
 
 const updateCategory = asyncHandler(async (req, res) => {
-  const data = await CategoryService.update(req.params.categoryId, req.body);
+  const data = await CategoryService.update(req.params.categoryId, req.body, req.file);
 
   res.status(200).json({
     success: true,
