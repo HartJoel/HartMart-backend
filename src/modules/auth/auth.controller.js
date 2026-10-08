@@ -1,7 +1,10 @@
 import jwt from "jsonwebtoken";
 import AuthService from "./auth.service.js";
 import asyncHandler from "../../shared/utils/asyncHandler.js";
-import { setAuthCookies, clearAuthCookies } from "../../shared/utils/generate.token.js";
+import {
+  setAuthCookies,
+  clearAuthCookies,
+} from "../../shared/utils/generate.token.js";
 import { sendErrorResponse } from "../../shared/utils/error-response.js";
 
 const register = asyncHandler(async (req, res) => {
@@ -77,7 +80,6 @@ const login = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      accessToken,
     },
   });
 });
@@ -88,7 +90,10 @@ const logout = asyncHandler(async (req, res) => {
   let userId = req.user?.id;
   if (!userId && refreshTokenCookie) {
     try {
-      userId = jwt.verify(refreshTokenCookie, process.env.JWT_REFRESH_SECRET).id;
+      userId = jwt.verify(
+        refreshTokenCookie,
+        process.env.JWT_REFRESH_SECRET,
+      ).id;
     } catch {
       // Token invalid/expired - still proceed to clear cookies below.
     }
