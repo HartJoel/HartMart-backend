@@ -7,6 +7,7 @@ import EventTypes from "../../events/eventTypes.js";
 import AppError from "../../shared/utils/AppError.js";
 import logger from "../../shared/utils/logger.js";
 import { invalidateCache } from "../../shared/utils/cache.js";
+import { uploadVendorAssetToCloudinary } from "../../shared/utils/uploadToCloudinary.js";
 
 class VendorService {
   static async applyAsVendor(userId, data) {
@@ -78,10 +79,24 @@ class VendorService {
     return vendor;
   }
 
-  static async updateVendorProfile(userId, data) {
+  static async updateVendorProfile(userId, data, files = {}) {
     const vendor = await VendorRepository.findUserId(userId);
     if (!vendor) throw new AppError("You do not have a vendor account.", 404);
-    const updatedVendor = await VendorRepository.updateVendor(vendor.id, data);
+
+    const [logo, banner] = await Promise.all([
+      files.storeLogo?.[0]
+        ? uploadVendorAssetToCloudinary(files.storeLogo[0].buffer, "logos")
+        : null,
+      files.storeBanner?.[0]
+        ? uploadVendorAssetToCloudinary(files.storeBanner[0].buffer, "banners")
+        : null,
+    ]);
+
+    const updatedVendor = await VendorRepository.updateVendor(vendor.id, {
+      ...data,
+      ...(logo && { storeLogo: logo.secure_url }),
+      ...(banner && { storeBanner: banner.secure_url }),
+    });
     EventService.emit(EventTypes.VENDOR_UPDATED, {
       userId,
       vendorId: vendor.id,

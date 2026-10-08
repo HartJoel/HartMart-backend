@@ -16,6 +16,7 @@ import {
 import { validateRequest } from "../../shared/middleware/validate.request.js";
 import { rejectVendorSchema, updateVendorProfileSchema, vendorApplicationSchema } from "./vendor.validator.js";
 import { validateIdParam } from "../../shared/middleware/validate.id-param.js";
+import { upload } from "../../shared/middleware/upload.js";
 
 const router = express.Router();
 
@@ -27,7 +28,21 @@ router.get("/top", getTopVendors);
 router.get("/me", authMiddleware, getMyVendorProfile);
 
 // Vendor
-router.patch("/me", authMiddleware, validateRequest(updateVendorProfileSchema), updateVendorProfile);
+router.patch(
+  "/me",
+  authMiddleware,
+  upload.fields([
+    { name: "storeLogo", maxCount: 1 },
+    { name: "storeBanner", maxCount: 1 },
+  ]),
+  (req, res, next) => {
+    if (req.files?.storeLogo?.length && req.body.storeLogo === undefined) req.body.storeLogo = null;
+    if (req.files?.storeBanner?.length && req.body.storeBanner === undefined) req.body.storeBanner = null;
+    next();
+  },
+  validateRequest(updateVendorProfileSchema),
+  updateVendorProfile,
+);
 router.get("/me/analytics", authMiddleware, getVendorAnalytics);
 
 // Admin

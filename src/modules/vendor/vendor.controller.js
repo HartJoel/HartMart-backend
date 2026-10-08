@@ -32,7 +32,7 @@ const getMyVendorProfile = asyncHandler(async (req, res) => {
 });
 
 const updateVendorProfile = asyncHandler(async (req, res) => {
-  const vendor = await VendorService.updateVendorProfile(req.user.id, req.body);
+  const vendor = await VendorService.updateVendorProfile(req.user.id, req.body, req.files ?? {});
 
   return res.status(200).json({
     success: true,

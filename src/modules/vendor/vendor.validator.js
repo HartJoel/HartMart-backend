@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const vendorApplicationSchema = z.object({
+  storeLogo: z.string().trim().url().optional().nullable(),
+  storeBanner: z.string().trim().url().optional().nullable(),
   storeName: z
     .string()
     .min(3, "Store name must be at least 3 characters")

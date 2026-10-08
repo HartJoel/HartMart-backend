@@ -30,6 +30,20 @@ export const uploadCategoryToCloudinary = async (fileBuffer) => {
   });
 };
 
+export const uploadVendorAssetToCloudinary = async (fileBuffer, assetType) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: `marketplace/vendors/${assetType}` },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      },
+    );
+
+    stream.end(fileBuffer);
+  });
+};
+
 export const uploadAvatarToCloudinary = async (fileBuffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
