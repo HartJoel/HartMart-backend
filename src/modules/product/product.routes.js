@@ -30,7 +30,19 @@ router.get(
 );
 router.get("/vendor/me/low-stock", authMiddleware, validateRequest(productListQuerySchema, "query"), requireRole("VENDOR"), getLowStock);
 router.get("/:productId", validateIdParam("productId"), getProductById);
-router.patch("/:id", authMiddleware, validateIdParam("id"), validateRequest(updateProductSchema), requireRole("VENDOR"), updateProduct);
+router.patch(
+  "/:id",
+  authMiddleware,
+  upload.array("image", 10),
+  (req, res, next) => {
+    if (req.files?.length && !req.body.images) req.body.images = [];
+    next();
+  },
+  validateIdParam("id"),
+  validateRequest(updateProductSchema),
+  requireRole("VENDOR"),
+  updateProduct,
+);
 router.patch("/:productId/stock", authMiddleware, validateIdParam("productId"), validateRequest(updateProductStockSchema), requireRole("VENDOR"), updateStock);
 router.delete("/:productId", authMiddleware, validateIdParam("productId"), requireRole("VENDOR"), deleteProduct);
 

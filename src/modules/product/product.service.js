@@ -104,7 +104,7 @@ class ProductService {
     return product;
   }
 
-  static async updateProduct(productId, userId, data, context = {}) {
+  static async updateProduct(productId, userId, data, files = [], context = {}) {
     const vendor = await VendorRepository.findUserId(userId);
 
     if (!vendor) {
@@ -144,8 +144,16 @@ class ProductService {
       slug = `${baseSlug}-${crypto.randomBytes(2).toString("hex")}`;
     }
 
+    const uploadedImages = files.length
+      ? await Promise.all(files.map(async (file) => {
+          const uploadedImage = await uploadProductToCloudinary(file.buffer);
+          return { url: uploadedImage.secure_url, publicId: uploadedImage.public_id };
+        }))
+      : undefined;
+
     const updatedData = {
       ...data,
+      ...(uploadedImages && { images: uploadedImages }),
       ...(categoryId && { categoryId }),
       ...(slug && { slug }),
     };

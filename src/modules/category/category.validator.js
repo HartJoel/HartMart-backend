@@ -3,7 +3,7 @@ import { z } from "zod";
 const categoryFields = {
   name: z.string().min(2).max(100).trim(),
   description: z.string().max(5000).trim().optional().nullable(),
-  icon: z.string().max(2048).trim().optional().nullable(),
+  icon: z.string().trim().url().max(2048).optional().nullable(),
   parentId: z.string().min(1).optional().nullable(),
 };
 

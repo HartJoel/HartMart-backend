@@ -115,7 +115,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     categoryId,
     categorySlug,
     slug,
-  }, { ipAddress: req.ip, userAgent: req.get("user-agent") });
+  }, req.files ?? [], { ipAddress: req.ip, userAgent: req.get("user-agent") });
 
   return res.status(200).json({
     success: true,

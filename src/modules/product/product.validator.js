@@ -12,6 +12,14 @@ const imageSchema = z.object({
   url: z.string().url(),
   publicId: z.string().min(1),
 });
+const imagesSchema = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}, z.array(imageSchema));
 
 const editableProductFields = {
   name: z.string().min(2).max(255).trim(),
@@ -22,7 +30,7 @@ const editableProductFields = {
   availableStock: z.coerce.number().int().min(0),
   reservedStock: z.coerce.number().int().min(0),
   reorderLevel: z.coerce.number().int().min(0),
-  images: z.array(imageSchema).optional(),
+  images: imagesSchema.optional(),
   weight: z.coerce.number().positive().nullable(),
   dimensions: z.string().max(100).trim().nullable(),
   attributes: jsonObject,
