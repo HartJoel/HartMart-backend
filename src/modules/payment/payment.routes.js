@@ -15,11 +15,13 @@ import { paymentListQuerySchema } from "../../shared/validators/list-query.valid
 
 const router = express.Router();
 
+// Paystack authenticates webhook requests with its signature, not our user auth.
+router.post("/webhooks/paystack", validateRequest(paystackWebhookSchema), paystackWebhook);
+
 router.use(authMiddleware);
 
 router.post("/initialize", validateRequest(initializePaymentSchema), initializePayment);
 router.post("/:paymentId/confirm", validateIdParam("paymentId"), confirmPayment);
-router.post("/webhooks/paystack", validateRequest(paystackWebhookSchema), paystackWebhook);
 router.get("/", validateRequest(paymentListQuerySchema, "query"), requireRole("ADMIN"), getPayments);
 router.get("/:paymentId", validateIdParam("paymentId"), getPayment);
 

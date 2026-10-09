@@ -38,7 +38,11 @@ const app = express();
 app.use(cors(corsOptions));
 
 // Body parsing middlwares
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buffer) => {
+    req.rawBody = Buffer.from(buffer);
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
