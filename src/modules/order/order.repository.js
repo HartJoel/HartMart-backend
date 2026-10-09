@@ -16,6 +16,13 @@ class OrderRespository {
   static async findByCustomer(customerId) {
     return prisma.order.findMany({
       where: { customerId },
+      include: {
+        items: {
+          include: {
+            product: { select: { name: true, images: true } },
+          },
+        },
+      },
     });
   }
 
@@ -32,6 +39,9 @@ class OrderRespository {
         items: {
           where: {
             vendorId,
+          },
+          include: {
+            product: { select: { name: true, images: true } },
           },
         },
       },
@@ -56,6 +66,11 @@ class OrderRespository {
             id: true,
             email: true,
             name: true,
+          },
+        },
+        items: {
+          include: {
+            product: { select: { name: true, images: true } },
           },
         },
       },

@@ -7,6 +7,22 @@ import EventService from "../../events/eventService.js";
 import EventTypes from "../../events/eventTypes.js";
 import logger from "../../shared/utils/logger.js";
 
+const withDisplayItems = (order) => ({
+  ...order,
+  items: order.items?.map((item) => {
+    const { product, ...storedItem } = item;
+    return {
+      ...storedItem,
+      productId: item.productId,
+      name: product?.name ?? null,
+      image: Array.isArray(product?.images) ? product.images[0] ?? null : null,
+      quantity: item.quantity,
+      // OrderItem.unitPrice is captured when the order is placed.
+      unitPrice: item.unitPrice,
+    };
+  }),
+});
+
 class OrderService {
   static async createOrder(userId, payload) {
     const cartItems = await OrderRespository.getCart(userId);
@@ -84,7 +100,7 @@ class OrderService {
     });
     logger.info("Order created", { orderId: order.id, orderNumber: order.orderNumber, customerId: userId, amount: Number(order.totalAmount), vendorIds: [...new Set(orderItems.map((item) => item.vendorId).filter(Boolean))], itemCount: orderItems.length });
 
-    return order;
+    return withDisplayItems(await OrderRespository.findById(order.id));
   }
 
   static async getOrderTimeline(orderId) {
@@ -94,17 +110,19 @@ class OrderService {
   static async getOrder(orderId) {
     const order = await OrderRespository.findById(orderId);
     if (!order) throw new AppError("Order not found.", 404);
-    return order;
+    return withDisplayItems(order);
   }
 
   static async getUserOrders(userId) {
-    return await OrderRespository.findByCustomer(userId);
+    const orders = await OrderRespository.findByCustomer(userId);
+    return orders.map(withDisplayItems);
   }
 
   static async getVendorOrders(userId) {
     const vendor = await VendorRepository.findUserId(userId);
 
-    return await OrderRespository.getVendorOrders(vendor.id);
+    const orders = await OrderRespository.getVendorOrders(vendor.id);
+    return orders.map(withDisplayItems);
   }
 
   static async updateOrderStatus(orderId, status) {
