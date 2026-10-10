@@ -1,4 +1,8 @@
-const defaultOrigins = ["http://localhost:5173"];
+const defaultOrigins = [
+  "http://localhost:5173",
+  "https://localhost:5173",
+  "https://hart-mart-frontend.vercel.app",
+];
 
 const envOrigins = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
