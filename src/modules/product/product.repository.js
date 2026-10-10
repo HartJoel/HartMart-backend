@@ -33,13 +33,14 @@ class ProductRepository {
     return prisma.product.findUnique({ where: { id } });
   }
 
-  static async getProducts(query) {
-    return new QueryBuilder(prisma.product, query, { supportsSoftDelete: true })
+  static async getProducts(query, categoryIds) {
+    const builder = new QueryBuilder(prisma.product, query, { supportsSoftDelete: true })
       .search(["name", "description"])
-      .filter()
-      .sort()
-      .paginate()
-      .exec();
+      .filter();
+
+    if (categoryIds) builder.where.categoryId = { in: categoryIds };
+
+    return builder.sort().paginate().exec();
   }
 
   static async updateProduct(id, data) {

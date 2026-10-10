@@ -23,6 +23,22 @@ class CategoryRepository {
     });
   }
 
+  static async findDescendantIds(id) {
+    const ids = [id];
+    let parentIds = [id];
+
+    while (parentIds.length > 0) {
+      const children = await prisma.category.findMany({
+        where: { parentId: { in: parentIds }, deletedAt: null },
+        select: { id: true },
+      });
+      parentIds = children.map(({ id: childId }) => childId);
+      ids.push(...parentIds);
+    }
+
+    return ids;
+  }
+
   static async listCategories() {
     return prisma.category.findMany({ where: { deletedAt: null } });
   }

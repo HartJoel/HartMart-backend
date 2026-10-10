@@ -73,7 +73,10 @@ class ProductService {
   }
 
   static async getAllProducts(query) {
-    const result = await getOrSetCache("products.list", [query], cacheTtl.productList, () => ProductRepository.getProducts(query));
+    const categoryIds = query.categoryId
+      ? await CategoryRepository.findDescendantIds(query.categoryId)
+      : undefined;
+    const result = await getOrSetCache("products.list", [query], cacheTtl.productList, () => ProductRepository.getProducts(query, categoryIds));
 
     const products = result.data ?? result;
 
