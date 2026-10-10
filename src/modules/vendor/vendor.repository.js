@@ -109,7 +109,7 @@ class VendorRepository {
       orderBy: {
         averageRating: "desc",
       },
-      take: 10,
+      take: 5,
     });
   }
 }
